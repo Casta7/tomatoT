@@ -1,0 +1,10 @@
+{
+    "manifest_version": 3,
+    "version": "1",
+    "name": "tomatoT",
+    "description": "a focus timer",
+    "action": {
+        "default_popup": "index.html",
+        "default_title": "Upcoming Toronto Concerts"
+    }
+}

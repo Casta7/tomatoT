@@ -1,0 +1,143 @@
+body {
+    padding: 0;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    transition: background-color 0.3s ease;
+    width: 300px;
+  }
+  
+  body.dark-mode {
+    background-color: #222;
+    color: #eee;
+    
+  }
+  
+  .container {
+    width: 100%;
+    margin: 0;
+    background-color: rgb(217,164,111);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box;
+  }
+  
+  .container.dark-mode {
+    background-color: #333;
+    color: #eee;
+  }
+  
+  .gif {
+    border-radius: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+  }
+  
+  .button-container1, .button-container2 {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  
+  
+  .button1, .button2 {
+    padding: 8px 8px;
+    border: 2px solid white;
+    border-radius: 5px;
+    background-color: royalblue;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 100px;
+    box-sizing: border-box;
+  }
+  
+  .button1:hover, .button2:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+  }
+  
+  .button1:disabled, .button2:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+    transform: none;
+    
+  }
+  
+  .timerDisplay {
+    font-size: 48px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+    letter-spacing: 2px;
+    transition: color 0.3s ease;
+  }
+  
+  .container.dark-mode .timerDisplay {
+    color: #fff;
+  }
+
+  .stop {
+    padding: 8px 8px;
+    border: 2px solid white;
+    border-radius: 5px;
+    background-color: rgb(116, 225, 65);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 100px;
+    box-sizing: border-box;
+  }
+
+  .del {
+    padding: 8px 8px;
+    border: 2px solid white;
+    border-radius: 5px;
+    background-color: rgb(225, 65, 65);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 100px;
+    box-sizing: border-box;
+  }
+  
+  button > img {
+    width: 10px;
+  }
+
+  .github {
+    padding: 10px;
+    display: flex;
+    
+    
+    font-size: small;
+    
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-family: "Roboto", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 100;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
+    color: black;
+    text-decoration: none;
+  }
+
+  .github > a >img {
+    width: 30px;
+  }
