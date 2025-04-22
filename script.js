@@ -1,6 +1,6 @@
 let timerDisplay = document.querySelector(".timerDisplay");
 let button1 = document.querySelector(".button1");
-let button2 = document.querySelector(".button2"); // 👈 Assicurati che questo bottone esista nel tuo HTML!
+let button2 = document.querySelector(".button2"); 
 let intervallo;
 let gif = document.querySelector(".gif");
 let stopButton = document.querySelector(".stop");
