@@ -69,7 +69,7 @@ function updateTimerDisplay(secondi) {
 // Event Listeners
 
 startButton25.addEventListener("click", () => {
-  chrome.runtime.sendMessage({ action: "start", focus: 0.1, break: 0.1 });
+  chrome.runtime.sendMessage({ action: "start", focus: 0.6, break: 0.5 });
   setButtonVisibility(true);
   gif.src = "./assets/pomo.PNG";
   isRunning = true;

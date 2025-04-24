@@ -42,7 +42,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     pomodoro.intervallo = setInterval(() => updateTimer(pomodoro), 1000);
     sendResponse({ status: "Timer ripreso!" });
     break; 
-  case 'restart':
+  case 'reset':
     clearInterval(pomodoro.intervallo);
     pomodoro.isRunning = false;
     pomodoro.intervallo = null;
