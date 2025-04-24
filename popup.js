@@ -14,7 +14,7 @@ let isRunning = false;
 
 const breakPhoto = ["./assets/tel.PNG", "./assets/panino.PNG", "./assets/contro.PNG"];
 const maxBreakPhotoIndex = breakPhoto.length - 1;
-let photo;
+let photo = getRandomPhoto();
 
 // Funzioni Riutilizzabili
 
@@ -68,12 +68,46 @@ function updateTimerDisplay(secondi) {
 
 // Event Listeners
 
+document.addEventListener("DOMContentLoaded", () => {
+  chrome.runtime.sendMessage({ action: "getState" }, (response) => {
+    if (!response) return;
+
+    isRunning = response.isRunning;
+    isFocus = response.isFocus;
+    secondiRimanenti = response.secondiRimanenti || 0;
+
+    // Calcolo tempo residuo se era in esecuzione
+    if (response.tempoInizio && isRunning) {
+      const tempoPassato = Math.floor((Date.now() - response.tempoInizio) / 1000);
+      const durata = isFocus ? response.durataFocusSecondi : response.durataPausaSecondi;
+      secondiRimanenti = durata - tempoPassato;
+    }
+
+    // 💡 Mostra timer solo se ha senso (evita 00:00)
+    if (secondiRimanenti > 0) updateTimerDisplay(secondiRimanenti);
+
+    // 💡 Mostra i pulsanti in modo coerente
+    setButtonVisibility(isRunning || secondiRimanenti > 0);
+    updateStopButtonIcon(isRunning);
+
+    // 💡 Mostra l'immagine corretta
+    if (isRunning && isFocus) {
+      gif.src = "./assets/pomo.PNG";
+    } else if (isRunning && !isFocus) {
+      gif.src = photo;
+    } else {
+      gif.src = "./assets/logo-removebg-preview.png";
+    }
+  });
+});
+
+
 startButton25.addEventListener("click", () => {
   chrome.runtime.sendMessage({ action: "start", focus: 0.6, break: 0.5 });
   setButtonVisibility(true);
   gif.src = "./assets/pomo.PNG";
   isRunning = true;
-  photo = breakPhoto[getRandomPhoto()];
+
 });
 
 startButton50.addEventListener("click", () => {
@@ -81,7 +115,7 @@ startButton50.addEventListener("click", () => {
   setButtonVisibility(true);
   gif.src = "./assets/pomo.PNG";
   isRunning = true;
-  photo = breakPhoto[getRandomPhoto()];
+
 });
 
 stopButton.addEventListener("click", () => {
@@ -90,7 +124,7 @@ stopButton.addEventListener("click", () => {
     isRunning = false;
     updateStopButtonIcon(false);
     if (!isFocus) {
-        gif.src = photo;
+        gif.src = breakPhoto[photo];
     }
   }
   else {
@@ -120,7 +154,7 @@ chrome.runtime.onMessage.addListener((message) => {
       updateStopButtonIcon(true);
       if (!isFocus) {
         // Usa !isFocus per controllare più chiaramente
-        gif.src = photo;
+        gif.src = breakPhoto[photo];
       } else {
         gif.src = "./assets/pomo.PNG";
       }

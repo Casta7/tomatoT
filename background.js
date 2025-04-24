@@ -27,6 +27,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     pomodoro.secondiRimanenti = (pomodoro.isFocus ? pomodoro.durataFocusSecondi : pomodoro.durataPausaSecondi) - tempoPassato;
     pomodoro.isRunning = false;
     pomodoro.intervallo = null;
+    pomodoro.tempoInizio = null; 
     sendResponse({ status: "Timer fermato!", secondiRimanenti: pomodoro.secondiRimanenti });
     break; 
   case 'resume':
@@ -49,6 +50,17 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     pomodoro.secondiRimanenti = null;
     sendResponse({ status: "Timer resettato!" });
     break;
+  case 'getState':
+      sendResponse({
+        isRunning: pomodoro.isRunning,
+        isFocus: pomodoro.isFocus,
+        secondiRimanenti: pomodoro.secondiRimanenti,
+        tempoInizio: pomodoro.tempoInizio,
+        durataFocusSecondi: pomodoro.durataFocusSecondi,
+        durataPausaSecondi: pomodoro.durataPausaSecondi
+      });
+      break;
+    
  }
 
   return true;
