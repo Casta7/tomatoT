@@ -3,8 +3,14 @@
     "version": "1",
     "name": "tomatoT",
     "description": "a focus timer",
+    "permissions": ["notifications"],
+    "icons": {
+        "32": "./assets/logo-removebg-preview.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+      },
     "action": {
-        "default_popup": "index.html",
-        "default_title": "Upcoming Toronto Concerts"
+        "default_popup": "index.html"
     }
 }
