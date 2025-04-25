@@ -1,72 +1,56 @@
-let timerDisplay = document.querySelector(".timerDisplay");
-let startButton25 = document.querySelector(".startButton25");
-let startButton50 = document.querySelector(".startButton50");
-let optionContainer = document.querySelector(".button-container2");
-let startContainer = document.querySelector(".button-container1");
-let stopButton = document.querySelector(".stop");
-let delButton = document.querySelector(".del");
-let pauseImg = document.querySelector("#pauseImg");
-let gif = document.querySelector(".gif");
+// === Elementi DOM ===
+const timerDisplay = document.querySelector(".timerDisplay");
+const startButtons = document.querySelectorAll(".startButton25, .startButton50");
+const optionContainer = document.querySelector(".button-container2");
+const startContainer = document.querySelector(".button-container1");
+const stopButton = document.querySelector(".stop");
+const delButton = document.querySelector(".del");
+const pauseImg = document.querySelector("#pauseImg");
+const gif = document.querySelector(".gif");
 
+// === Stato UI ===
 let isFocus = true;
-let secondiRimanenti = 0;
 let isRunning = false;
+let secondiRimanenti = 0;
 
-const breakPhoto = ["./assets/tel.PNG", "./assets/panino.PNG", "./assets/contro.PNG"];
-const maxBreakPhotoIndex = breakPhoto.length - 1;
-let photo = getRandomPhoto();
+const breakPhotos = ["./assets/tel.PNG", "./assets/panino.PNG", "./assets/contro.PNG"];
+let breakPhoto = breakPhotos[Math.floor(Math.random() * breakPhotos.length)];
 
-// Funzioni Riutilizzabili
-
-/**
- * Genera un numero casuale tra 0 e un massimo (incluso).
- * @returns {number} Un numero intero casuale.
- */
-function getRandomPhoto() {
-  return Math.floor(Math.random() * (maxBreakPhotoIndex + 1));
-}
-
-/**
- * Imposta la visibilità dei contenitori dei pulsanti.
- * @param {boolean} isRunning - Indica se il timer è in esecuzione.
- */
-function setButtonVisibility(isRunning) {
-  startContainer.style.display = isRunning ? "none" : "flex";
-  optionContainer.style.display = isRunning ? "flex" : "none";
-}
-
-/**
- * Aggiorna l'icona del pulsante di stop/play.
- * @param {boolean} isRunning - Indica se il timer è in esecuzione.
- */
-function updateStopButtonIcon(isRunning) {
-  pauseImg.src = isRunning ? "./assets/pause.png" : "./assets/play.png"; // Corretto il nome dell'immagine
-}
-
-/**
- * Resetta l'interfaccia utente allo stato iniziale.
- */
-function resetUI() {
-  setButtonVisibility(false);
-  timerDisplay.innerHTML = ""; // Resetta il timer display
-  gif.src = "assets/logo-removebg-preview.png";
-  isRunning = false;
-  isFocus = true; // Resetta anche isFocus
-}
-
-/**
- * Aggiorna il display del timer.
- * @param {number} secondi - Il numero di secondi rimanenti.
- */
-function updateTimerDisplay(secondi) {
+// === Utility ===
+const formatTime = (secondi) => {
   const minuti = Math.floor(secondi / 60);
   const secondiFormattati = secondi % 60 < 10 ? "0" + (secondi % 60) : secondi % 60;
-  timerDisplay.innerHTML =`${minuti}m ${secondiFormattati}s <br> ${
-    isFocus ? "Focus" : "Pausa"
-  }`;
-}
+  return `${minuti}m ${secondiFormattati}s`;
+};
 
-// Event Listeners
+const updateTimerDisplay = (secondi) => {
+  timerDisplay.innerHTML = `${formatTime(secondi)} <br> ${isFocus ? "Focus" : "Pausa"}`;
+};
+
+const setButtonVisibility = (visible) => {
+  startContainer.style.display = visible ? "none" : "flex";
+  optionContainer.style.display = visible ? "flex" : "none";
+};
+
+const updateGif = () => {
+  gif.src = isRunning ? (isFocus ? "./assets/pomo.PNG" : breakPhoto) : "./assets/logo-removebg-preview.png";
+};
+
+const updateStopButtonIcon = () => {
+  pauseImg.src = isRunning ? "./assets/pause.png" : "./assets/play.png";
+};
+
+const resetUI = () => {
+  isFocus = true;
+  isRunning = false;
+  secondiRimanenti = 0;
+  timerDisplay.innerHTML = "";
+  updateGif();
+  setButtonVisibility(false);
+  updateStopButtonIcon();
+};
+
+// === Eventi ===
 
 document.addEventListener("DOMContentLoaded", () => {
   chrome.runtime.sendMessage({ action: "getState" }, (response) => {
@@ -76,66 +60,47 @@ document.addEventListener("DOMContentLoaded", () => {
     isFocus = response.isFocus;
     secondiRimanenti = response.secondiRimanenti || 0;
 
-    // Calcolo tempo residuo se era in esecuzione
     if (response.tempoInizio && isRunning) {
-      const tempoPassato = Math.floor((Date.now() - response.tempoInizio) / 1000);
+      const elapsed = Math.floor((Date.now() - response.tempoInizio) / 1000);
       const durata = isFocus ? response.durataFocusSecondi : response.durataPausaSecondi;
-      secondiRimanenti = durata - tempoPassato;
+      secondiRimanenti = durata - elapsed;
     }
 
-    // 💡 Mostra timer solo se ha senso (evita 00:00)
     if (secondiRimanenti > 0) updateTimerDisplay(secondiRimanenti);
 
-    // 💡 Mostra i pulsanti in modo coerente
     setButtonVisibility(isRunning || secondiRimanenti > 0);
-    updateStopButtonIcon(isRunning);
-
-    // 💡 Mostra l'immagine corretta
-    if (isRunning && isFocus) {
-      gif.src = "./assets/pomo.PNG";
-    } else if (isRunning && !isFocus) {
-      gif.src = photo;
-    } else {
-      gif.src = "./assets/logo-removebg-preview.png";
-    }
+    updateStopButtonIcon();
+    updateGif();
   });
 });
 
+startButtons.forEach((button) =>
+  button.addEventListener("click", () => {
+    const focus = button.classList.contains("startButton25") ? 0.6 : 50;
+    const pause = button.classList.contains("startButton25") ? 0.5 : 10;
 
-startButton25.addEventListener("click", () => {
-  chrome.runtime.sendMessage({ action: "start", focus: 0.6, break: 0.5 });
-  setButtonVisibility(true);
-  gif.src = "./assets/pomo.PNG";
-  isRunning = true;
-
-});
-
-startButton50.addEventListener("click", () => {
-  chrome.runtime.sendMessage({ action: "start", focus: 50, break: 10 });
-  setButtonVisibility(true);
-  gif.src = "./assets/pomo.PNG";
-  isRunning = true;
-
-});
+    chrome.runtime.sendMessage({ action: "start", focus: focus, break: pause });
+    isRunning = true;
+    breakPhoto = breakPhotos[Math.floor(Math.random() * breakPhotos.length)];
+    setButtonVisibility(true);
+    gif.src = "./assets/pomo.PNG";
+  })
+);
 
 stopButton.addEventListener("click", () => {
   if (isRunning) {
     chrome.runtime.sendMessage({ action: "stop" });
     isRunning = false;
-    updateStopButtonIcon(false);
-    if (!isFocus) {
-        gif.src = breakPhoto[photo];
-    }
-  }
-  else {
+  } else {
     chrome.runtime.sendMessage({
-    action: "resume",
-    timer: secondiRimanenti, 
-    isFocus: isFocus
+      action: "resume",
+      timer: secondiRimanenti,
+      isFocus,
     });
     isRunning = true;
-    updateStopButtonIcon(true);
   }
+  updateStopButtonIcon();
+  updateGif();
 });
 
 delButton.addEventListener("click", () => {
@@ -144,27 +109,20 @@ delButton.addEventListener("click", () => {
 });
 
 chrome.runtime.onMessage.addListener((message) => {
-  if (message.action === "updateTimer") {
-    secondiRimanenti = message.timer;
-    isFocus = message.isFocus; // Ottieni isFocus dal messaggio
-    updateTimerDisplay(secondiRimanenti); // Passa i secondi da visualizzare
+  if (message.action !== "updateTimer") return;
 
-    if (message.isRunning) {
-      setButtonVisibility(true);
-      updateStopButtonIcon(true);
-      if (!isFocus) {
-        // Usa !isFocus per controllare più chiaramente
-        gif.src = breakPhoto[photo];
-      } else {
-        gif.src = "./assets/pomo.PNG";
-      }
-      isRunning = true;
-    } else if (secondiRimanenti < 0 ) {
-      resetUI(); // Usa la funzione di reset
-    } else {
-      setButtonVisibility(false);
-      updateStopButtonIcon(false);
-      isRunning = false;
-    }
+  secondiRimanenti = message.timer;
+  isFocus = message.isFocus;
+  isRunning = message.isRunning;
+
+  if (secondiRimanenti > 0) {
+    updateTimerDisplay(secondiRimanenti);
+    setButtonVisibility(true);
+    updateGif();
+    updateStopButtonIcon();
+  } 
+  
+  if(secondiRimanenti < 0){
+    resetUI();
   }
 });
