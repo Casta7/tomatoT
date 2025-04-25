@@ -121,6 +121,7 @@ function updateTimer(p) {
       p.secondiRimanenti = p.durataPausaSecondi;
       p.tempoInizio = Date.now();
       p.isFocus = false;
+      chrome.runtime.sendMessage({action: "changedStatus"})
     } else {
       clearInterval(p.intervallo);
       notifica();

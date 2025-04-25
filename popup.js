@@ -7,6 +7,7 @@ const delButton = document.querySelector(".del");
 const pauseImg = document.querySelector("#pauseImg");
 const gif = document.querySelector(".gif");
 const progressBar = document.querySelector(".progress-bar");
+const progressBarConttainer = document.querySelector(".progress-container");
 
 // === Stato UI ===
 let isFocus = true;
@@ -14,7 +15,7 @@ let isRunning = false;
 let secondiRimanenti = 0;
 let durataTotale = 0; //aggiunto
 
-const breakPhotos = ["./assets/tel.PNG", "./assets/panino.PNG", "./assets/contro.PNG"];
+const breakPhotos = ["assets/giphy-unscreen.gif"];
 let breakPhoto = breakPhotos[Math.floor(Math.random() * breakPhotos.length)];
 
 // === Utility ===
@@ -26,9 +27,9 @@ const formatTime = (secondi) => {
 };
 
 const updateTimerDisplay = (secondi) => {
-  timerDisplay.innerHTML = `${formatTime(secondi)} <br> ${
+  timerDisplay.innerHTML = `<h2> ${formatTime(secondi)} </h2> <span> ${
     isFocus ? "Focus" : "Pausa"
-  }`;
+  } </span>`;
 };
 
 function updateProgressBar(secondiRimanenti, durataTotale) {
@@ -48,12 +49,13 @@ function updateProgressBar(secondiRimanenti, durataTotale) {
 const setButtonVisibility = (visible) => {
   startContainer.style.display = visible ? "none" : "flex";
   optionContainer.style.display = visible ? "flex" : "none";
+  progressBarConttainer.style.display = visible ? "flex" : "none";
 };
 
 const updateGif = () => {
   gif.src = isRunning
     ? isFocus
-      ? "./assets/pomo.PNG"
+      ? "./assets/9aa4048e9dd2d6474d3288a034505d-unscreen.gif"
       : breakPhoto
     : "./assets/logo-removebg-preview.png";
 };
@@ -70,7 +72,8 @@ const resetUI = () => {
   updateGif();
   setButtonVisibility(false);
   updateStopButtonIcon();
-  progressBar.style.width = "0%"; //reset progress bar
+  progressBar.style.width = "0%";
+  progressBarConttainer.style.display = "none" //reset progress bar
 };
 
 // === Eventi ===
@@ -111,7 +114,7 @@ startButtons.forEach((button) =>
     durataTotale = focus * 60; //imposto la durata totale
     breakPhoto = breakPhotos[Math.floor(Math.random() * breakPhotos.length)];
     setButtonVisibility(true);
-    gif.src = "./assets/pomo.PNG";
+    gif.src = "./assets/9aa4048e9dd2d6474d3288a034505d-unscreen.gif";
   })
 );
 
@@ -128,7 +131,6 @@ stopButton.addEventListener("click", () => {
     isRunning = true;
   }
   updateStopButtonIcon();
-  updateGif();
 });
 
 delButton.addEventListener("click", () => {
@@ -149,8 +151,13 @@ chrome.runtime.onMessage.addListener((message) => {
     updateTimerDisplay(secondiRimanenti);
     updateProgressBar(message.durataTotale - message.secondiTrascorsi, message.durataTotale); // Usa la durataTotale dal messaggio
     setButtonVisibility(true);
-    updateGif();
     updateStopButtonIcon();
+  }
+
+  if(message.action === "changedStatus"){
+    console.log("changed status")
+    gif.src = breakPhoto;
+    timerDisplay.innerHTML = `<h2> 0m 00s </h2> <span> focus </span>`;
   }
 
 });

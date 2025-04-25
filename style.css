@@ -1,3 +1,8 @@
+@font-face{
+  font-family:'digital-clock-font';
+  src: url('https://www.1001fonts.com/digital-7-font.html?size=-9');
+ }
+
 body {
     padding: 0;
     margin: 0;
@@ -15,7 +20,7 @@ body {
   .container {
     width: 100%;
     margin: 0;
-    background-color: rgb(217,164,111);
+    background-color: rgb(149, 51, 51);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -26,13 +31,12 @@ body {
   }
   
   .container.dark-mode {
-    background-color: #333;
+    background-color: #000000;
     color: #eee;
   }
   
   .gif {
     border-radius: 10px;
-    margin-bottom: 20px;
     width: 100%;
     max-height: 300px;
     object-fit: cover;
@@ -58,6 +62,7 @@ body {
     transition: background-color 0.3s ease, transform 0.2s ease;
     width: 100px;
     box-sizing: border-box;
+    box-shadow: #222 10px;
   }
   
   .startButton25:hover, .startButton50:hover {
@@ -71,14 +76,24 @@ body {
     transform: none;
     
   }
-  
+ 
   .timerDisplay {
-    font-size: 48px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: #333;
-    letter-spacing: 2px;
+    display: flex;
+    flex-direction: column;
     transition: color 0.3s ease;
+    margin: 10px;
+    padding: 0;
+  }
+
+  .timerDisplay > h2 {
+    font-family: "Orbitron", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-size: 30px;
+    font-weight: 400;
+    color: #ffffff;
+    letter-spacing: 2px;
+    padding: 0;
   }
   
   .container.dark-mode .timerDisplay {
@@ -121,13 +136,26 @@ body {
   button > img {
     width: 10px;
   }
+  
+  span {
+    color: #222;
+    font-size: small;
+    margin: 0;
+  }
 
   .github {
-    padding: 10px;
+    margin-bottom: 10px;
     display: flex;
-    
-    
+    transition: transform 0.2s;    
     font-size: small;
+    
+  }
+
+  .github:hover {
+    transform: rotate(-3deg);
+    transition: transform 0.2s;
+    transition-timing-function: linear;
+    overflow: hidden;
     
   }
 
@@ -152,7 +180,8 @@ body {
   /* Progress Bar Container */
 /* CSS per la progress bar */
 .progress-container {
-  width: 100%;
+  margin: 10px;
+  width: 90%;
   height: 10px;
   background-color: #f3f3f3; /* colore di sfondo della progress bar */
   border-radius: 5px;
@@ -162,7 +191,7 @@ body {
 .progress-bar {
   height: 100%;
   width: 0%; /* Inizialmente la larghezza è 0 */
-  background-color: #4caf50; /* Colore della progress bar */
+  background-color: #0056b3; /* Colore della progress bar */
   border-radius: 5px;
   transition: width 0.5s ease-in-out; /* Rende l'aggiornamento della larghezza fluido */
 }
