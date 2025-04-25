@@ -1,4 +1,3 @@
-// === Elementi DOM ===
 const timerDisplay = document.querySelector(".timerDisplay");
 const startButtons = document.querySelectorAll(".startButton25, .startButton50");
 const optionContainer = document.querySelector(".button-container2");
@@ -7,11 +6,13 @@ const stopButton = document.querySelector(".stop");
 const delButton = document.querySelector(".del");
 const pauseImg = document.querySelector("#pauseImg");
 const gif = document.querySelector(".gif");
+const progressBar = document.querySelector(".progress-bar");
 
 // === Stato UI ===
 let isFocus = true;
 let isRunning = false;
 let secondiRimanenti = 0;
+let durataTotale = 0; //aggiunto
 
 const breakPhotos = ["./assets/tel.PNG", "./assets/panino.PNG", "./assets/contro.PNG"];
 let breakPhoto = breakPhotos[Math.floor(Math.random() * breakPhotos.length)];
@@ -19,13 +20,30 @@ let breakPhoto = breakPhotos[Math.floor(Math.random() * breakPhotos.length)];
 // === Utility ===
 const formatTime = (secondi) => {
   const minuti = Math.floor(secondi / 60);
-  const secondiFormattati = secondi % 60 < 10 ? "0" + (secondi % 60) : secondi % 60;
+  const secondiFormattati =
+    secondi % 60 < 10 ? "0" + (secondi % 60) : secondi % 60;
   return `${minuti}m ${secondiFormattati}s`;
 };
 
 const updateTimerDisplay = (secondi) => {
-  timerDisplay.innerHTML = `${formatTime(secondi)} <br> ${isFocus ? "Focus" : "Pausa"}`;
+  timerDisplay.innerHTML = `${formatTime(secondi)} <br> ${
+    isFocus ? "Focus" : "Pausa"
+  }`;
 };
+
+function updateProgressBar(secondiRimanenti, durataTotale) {
+  // Calcoliamo la percentuale di tempo passato
+  let percentuale = (1 - secondiRimanenti / durataTotale) * 100;
+
+  // Se la percentuale è maggiore di 100, impostiamo 100 per evitare che la barra vada oltre
+  if (percentuale > 100) percentuale = 100;
+
+  // Se la percentuale è inferiore a 0, la impostiamo a 0 (per evitare valori negativi)
+  if (percentuale < 0) percentuale = 0;
+
+  // Selezioniamo la progress bar e aggiorniamo la larghezza
+  progressBar.style.width = `${percentuale}%`;
+}
 
 const setButtonVisibility = (visible) => {
   startContainer.style.display = visible ? "none" : "flex";
@@ -33,7 +51,11 @@ const setButtonVisibility = (visible) => {
 };
 
 const updateGif = () => {
-  gif.src = isRunning ? (isFocus ? "./assets/pomo.PNG" : breakPhoto) : "./assets/logo-removebg-preview.png";
+  gif.src = isRunning
+    ? isFocus
+      ? "./assets/pomo.PNG"
+      : breakPhoto
+    : "./assets/logo-removebg-preview.png";
 };
 
 const updateStopButtonIcon = () => {
@@ -48,6 +70,7 @@ const resetUI = () => {
   updateGif();
   setButtonVisibility(false);
   updateStopButtonIcon();
+  progressBar.style.width = "0%"; //reset progress bar
 };
 
 // === Eventi ===
@@ -59,15 +82,18 @@ document.addEventListener("DOMContentLoaded", () => {
     isRunning = response.isRunning;
     isFocus = response.isFocus;
     secondiRimanenti = response.secondiRimanenti || 0;
+    durataTotale = isFocus ? response.durataFocusSecondi : response.durataPausaSecondi; //prendo durata totale
 
     if (response.tempoInizio && isRunning) {
       const elapsed = Math.floor((Date.now() - response.tempoInizio) / 1000);
-      const durata = isFocus ? response.durataFocusSecondi : response.durataPausaSecondi;
+      const durata = isFocus
+        ? response.durataFocusSecondi
+        : response.durataPausaSecondi;
       secondiRimanenti = durata - elapsed;
     }
 
     if (secondiRimanenti > 0) updateTimerDisplay(secondiRimanenti);
-
+    updateProgressBar(secondiRimanenti, durataTotale); //aggiunto
     setButtonVisibility(isRunning || secondiRimanenti > 0);
     updateStopButtonIcon();
     updateGif();
@@ -81,6 +107,8 @@ startButtons.forEach((button) =>
 
     chrome.runtime.sendMessage({ action: "start", focus: focus, break: pause });
     isRunning = true;
+    isFocus = true; //aggiunto
+    durataTotale = focus * 60; //imposto la durata totale
     breakPhoto = breakPhotos[Math.floor(Math.random() * breakPhotos.length)];
     setButtonVisibility(true);
     gif.src = "./assets/pomo.PNG";
@@ -109,20 +137,20 @@ delButton.addEventListener("click", () => {
 });
 
 chrome.runtime.onMessage.addListener((message) => {
-  if (message.action !== "updateTimer") return;
+  
 
-  secondiRimanenti = message.timer;
-  isFocus = message.isFocus;
-  isRunning = message.isRunning;
+  if (message.action === "timerFinished") {
+    resetUI(); // Reset GUI quando il timer finisce
+  }
 
-  if (secondiRimanenti > 0) {
+  if(message.action === "updateTimer"){
+    secondiRimanenti = message.timer;
+    isFocus = message.isFocus; 
     updateTimerDisplay(secondiRimanenti);
+    updateProgressBar(message.durataTotale - message.secondiTrascorsi, message.durataTotale); // Usa la durataTotale dal messaggio
     setButtonVisibility(true);
     updateGif();
     updateStopButtonIcon();
-  } 
-  
-  if(secondiRimanenti < 0){
-    resetUI();
   }
+
 });
